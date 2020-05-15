@@ -1,0 +1,8 @@
+#canvas {
+  margin: auto;
+  margin-top: 100px;
+  display: block;
+  background: url("space-wallpaper.jpg");
+  border-style: solid;
+  border-color: blue;
+};
