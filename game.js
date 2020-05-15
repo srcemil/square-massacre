@@ -31,7 +31,7 @@ Kollade upp numrena på tangenterna här:
 https://docstore.mik.ua/orelly/webprog/DHTML_javascript/0596004672_jvdhtmlckbk-app-b.html
 */
 
-var FPS = 30; //Fps, hur många frames som det ska vara per sekund
+var FPS = 30; // Fps, hur många frames som det ska vara per sekund
 var start = false; // Starta spelet? vi behöver den här variablen för att berätta för spelet om att spelet antinge är igång eller ej
 var score = 0; // Poäng
 var player = new Player(); // Skapa spelareobjekt
@@ -47,12 +47,13 @@ var pCmove = "WASD - move";
 var pCshoot = "Space - shoot";
 var gOver = "Game over!";
 var pressF5 = "Press F5 to restart"
+var hpText = "0";
 
-var w_delay = 0; // weapon delay
-var hit_delay = 0; // player hit delay
-let particleArray;
+var w_delay = 0; // weapon delay, detta gör att spelaren inte bara kan mata skott, och har då istället en liten paus ellan varje skott
+var hit_delay = 0; // player hit delay, viket gör att spelaren får "invincible frames" då den inte kan dö
+// let particleArray;
 
-//Loggar de tangenter som trycks ned
+// Loggar de tangenter som trycks ned
 function onKeyDown(event) {
   keyState[event.keyCode] = true; // Om tangenten är nere, så loggas den
   console.log(event.keyCode);
@@ -103,8 +104,7 @@ function Player() {
   var damage = 1; // Hur mycket skada spelaren gör
   var w_type = 1;
   var cd_factor = 10;
-
-
+  
   this.getHP = function() {
     return HP;
   };
@@ -227,7 +227,7 @@ Enemy.prototype.update = function() {
 
 Enemy.prototype.die = function() {
   this.active = false;
-  score += 10;
+  score += 10; // Varje gång en fiende dör så får man 10 poäng
 };
 
 
@@ -258,7 +258,7 @@ function collisionOccurs() {
 
   enemies.forEach(function(enemy) {
     if (collisionCheck(enemy, player)) {
-      if (hit_delay === 0) {
+      if (hit_delay === 0) { // Om hit delay är 0 så dör fienden och skadar spelaren
         enemy.die();
         player.getHit();
       }
@@ -303,6 +303,17 @@ function update() {
     player.x -= 4;
   if(keyState[keyRight] && player.x < canvas.width - player.width)
     player.x += 4;
+
+  if(score>1000000){ // Inspirerat av cookie clicker, ett stop för att lyckats komma till omöjliga nivåer.
+      start = false; // Stänger av spelet
+      alert("Cheating is not allowed!");
+        /*
+       Skickar en alert som gör att spelet inte går att köras nå mer, eftersom att när man
+       trycker på "ok" så uppdateras sidan fortfarande och blir ett oändigt pop-up fönster
+       tills man laddar om sidna och spelet.
+       */
+    }
+
 
   if(keyState[keyShoot]) // Gör att man space skjuter
     player.shoot();
@@ -358,5 +369,6 @@ function draw() {
 
   ctx.font = "15px Serif"; // Storlek och font
   ctx.fillStyle = "white"; // Färg på texten
-  ctx.fillText(score, 5, 15); // Utskrivna "poäng" med koordinater, vi har tidigare deklarerat variabeln score
+  ctx.fillText("Score: " + score, 5, 15); // Utskrivna "poäng" med koordinater, vi har tidigare deklarerat variabeln score
+  ctx.fillText(hpText, 5, 60)
 };
