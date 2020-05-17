@@ -3,6 +3,11 @@
 // Spel projekt
 // Ett spel som startades från scratch då Emil tyckte det var svårt att börja med det existerande ramverket.
 // Spelet heter "square massacre"
+// Målet med spelet är att man ska föröska att få så hög "score" som möjligt
+// Man har tillgång till ett vapen som skjuter skott för att döda de röda
+// kvadraterna. Om en röd kvadrat rör dig så förlorar man hälsa. Man kan bli
+// träffad tre gånger innan spelet tar slut och man förlorar. Man kan heller inte
+// fuska sig till en orimlig siffra
 
 var canvas = document.getElementById('canvas'); // Här hämtar vi canvas id från html
 var ctx = canvas.getContext('2d'); // Här säger vi att spelet ska vara i 2d
@@ -31,6 +36,7 @@ Kollade upp numrena på tangenterna här:
 https://docstore.mik.ua/orelly/webprog/DHTML_javascript/0596004672_jvdhtmlckbk-app-b.html
 */
 
+var highscore = ["", "", ""];
 var FPS = 30; // Fps, hur många frames som det ska vara per sekund
 var start = false; // Starta spelet? vi behöver den här variablen för att berätta för spelet om att spelet antinge är igång eller ej
 var score = 0; // Poäng
@@ -61,50 +67,14 @@ function onKeyDown(event) {
 function onKeyUp(event) {
   keyState[event.keyCode] = false; // Om tangenten är uppe, så loggas den inte, om vi logga den då så skulle den loggas hela tiden
 }
-/*
-function Particle(x, y, xSpeed, ySpeed, size, color){
-  this.x = x;
-  this.y = y;
-  this.xSpeed = xSpeed;
-  this.ySpeed = ySpeed;
-  this.size = size;
-  this.color = color;
-}
 
-Particle.prototype.draw = function () {
-  ctx.beginpath();
-  ctx.arc(this.x, this.y, 0, Math.PI * 2, false)
-  ctx.fillStyle = this.color;
-  ctx.fill();
-};
-
-Particle.prototype.draw = function () {
-  if (this.x + this.size > canvas.width || this.x - this.size < 0) {
-    this.xSpeed = -this.xSpeed;
-  }
-  if(this.y + this.size || this.y - this.size < 0) {
-  this.ySpeed = -this.ySpeed;
-}
-this.draw();
-};
-
-function init() {
-particleArray = [];
-for (var i = 0; i < 100; i++) {
-  let size = Math.random() * 20;
-  let x = Math.random() * (innerWidth - size * 2)
-  let y = Math.random() * (innerHeight - size * 2)
-  let xSpeed = Math.random() * (innerWidth size * 2)
-}
-}
-*/
 // Spelarens klass
 function Player() {
   var HP = 150; // Hälsa
   var damage = 1; // Hur mycket skada spelaren gör
   var w_type = 1;
   var cd_factor = 10;
-  
+
   this.getHP = function() {
     return HP;
   };
@@ -153,6 +123,10 @@ Player.prototype.shoot = function() {
     w_delay = 100; // Måste har en delay på skotten annars så blir spelet för enkelt
   }
 };
+
+function bulletUpgrade(){
+
+}
 
 function Bullet(bullet) { // Skott klass
   this.active = true;
@@ -273,12 +247,14 @@ setInterval(function() {
     if (player.getHP() > 0)
       update();
     draw();
+    if(player.getHP <= 0){
+      if(score <= highscore){
+        highscore.push(score);
+      }
+    }
   }
 },1000/FPS);
 
-function explosion(){
-
-}
 
 function startGame() {
   if (!start) {
@@ -288,6 +264,7 @@ function startGame() {
     // Behöver ingen font eller fillstyle eftersom att det redan är bestämt
     ctx.fillText(pCmove, 47, 210); // Text och koordinater
     ctx.fillText(pCshoot, 47, 240); // Text och koordinater
+    ctx.fillText(highscore, 47, 270)
   }
     if(keyState[keyStart])
       start = true;
@@ -314,8 +291,16 @@ function update() {
        */
     }
 
+    /*
+    En metod för att vinna på spelet
+    if(score>=10000){ Om "score" är lika med eller mer än 10 000 så körs denna funktion
+      start = false; Stoppar spelet
+      alert("You won!") Skickar en alert som säger att man vunnit
+    }
+    */
 
-  if(keyState[keyShoot]) // Gör att man space skjuter
+
+  if(keyState[keyShoot]) // Gör att space skjuter
     player.shoot();
 
   pBullets.forEach(function(bullet) { // Uppdatera pBullets efter varjegång funktionen bullets kör
@@ -370,5 +355,44 @@ function draw() {
   ctx.font = "15px Serif"; // Storlek och font
   ctx.fillStyle = "white"; // Färg på texten
   ctx.fillText("Score: " + score, 5, 15); // Utskrivna "poäng" med koordinater, vi har tidigare deklarerat variabeln score
-  ctx.fillText(hpText, 5, 60)
+  //ctx.fillText(hpText, 5, 60) funkar inte som jag vill
 };
+
+
+/* ICKE KLAR PARTIKEL EXPLOSION
+function Particle(x, y, xSpeed, ySpeed, size, color){
+  this.x = x;
+  this.y = y;
+  this.xSpeed = xSpeed;
+  this.ySpeed = ySpeed;
+  this.size = size;
+  this.color = color;
+}
+
+Particle.prototype.draw = function () {
+  ctx.beginpath();
+  ctx.arc(this.x, this.y, 0, Math.PI * 2, false)
+  ctx.fillStyle = this.color;
+  ctx.fill();
+};
+
+Particle.prototype.draw = function () {
+  if (this.x + this.size > canvas.width || this.x - this.size < 0) {
+    this.xSpeed = -this.xSpeed;
+  }
+  if(this.y + this.size || this.y - this.size < 0) {
+  this.ySpeed = -this.ySpeed;
+}
+this.draw();
+};
+
+function init() {
+particleArray = [];
+for (var i = 0; i < 100; i++) {
+  let size = Math.random() * 20;
+  let x = Math.random() * (innerWidth - size * 2)
+  let y = Math.random() * (innerHeight - size * 2)
+  let xSpeed = Math.random() * (innerWidth size * 2)
+}
+}
+*/
